@@ -1,43 +1,73 @@
 package ru.samarin.kotlinapp.data
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import ru.samarin.kotlinapp.data.entity.Note
+import java.util.*
 
 object NotesRepository {
 
-    private val notes: List<Note> = listOf(
+    private val notesLiveData = MutableLiveData<List<Note>>()
+
+    private val notes = mutableListOf(
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xfff06292.toInt()
+            Note.Color.WHITE
         ),
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xff9575cd.toInt()
+            Note.Color.YELLOW
         ),
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xff64b5f6.toInt()
+            Note.Color.GREEN
         ),
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xff4db6ac.toInt()
+            Note.Color.BLUE
         ),
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xffb2ff59.toInt()
+            Note.Color.RED
         ),
         Note(
+            UUID.randomUUID().toString(),
             "Заголовок",
             "Текст заметки",
-            0xffffeb3b.toInt()
+            Note.Color.VIOLET
         )
     )
 
-    fun getNotes(): List<Note> {
-        return notes
+    fun getNotes(): LiveData<List<Note>> {
+        return notesLiveData
+    }
+
+    init {
+        notesLiveData.value = notes
+    }
+
+    fun saveNote(note: Note) {
+        addOrReplace(note)
+        notesLiveData.value = notes
+    }
+
+    private fun addOrReplace(note: Note) {
+        for (i in notes.indices) {
+            if (notes[i] == note) {
+                notes[i] = note
+                return
+            }
+        }
+        notes.add(note)
     }
 }

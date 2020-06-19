@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.samarin.kotlinapp.R
+import ru.samarin.kotlinapp.ui.note.NoteActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,11 +17,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
 
         viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
         recyclerView.layoutManager = GridLayoutManager(this, 2)
-        adapter = NotesRVAdapter()
+        adapter = NotesRVAdapter {
+            NoteActivity.start(this, it)
+        }
         recyclerView.adapter = adapter
 
         viewModel.viewState().observe(this, Observer { state ->
@@ -28,5 +32,8 @@ class MainActivity : AppCompatActivity() {
                 adapter.notes = state.notes
             }
         })
+        fab.setOnClickListener {
+            NoteActivity.start(this)
+        }
     }
 }
