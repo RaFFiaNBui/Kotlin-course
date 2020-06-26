@@ -3,4 +3,6 @@
     <string name="button">Button</string>
     <string name="title">Заголовок</string>
     <string name="text">Текст заметки</string>
+    <string name="heading">Заголовок</string>
+    <string name="body_text">Текст заметки</string>
 </resources>
