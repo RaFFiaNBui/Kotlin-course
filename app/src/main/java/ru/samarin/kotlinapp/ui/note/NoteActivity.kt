@@ -4,7 +4,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -12,26 +11,30 @@ import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.activity_note.*
 import ru.samarin.kotlinapp.R
 import ru.samarin.kotlinapp.data.entity.Note
+import ru.samarin.kotlinapp.ui.base.BaseActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity : AppCompatActivity() {
+class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "EXTRA.NOTE"
         private const val DATE_FORMAT = "dd.MM.yyyy HH:mm"
 
-        fun start(context: Context, note: Note? = null) =
+        fun start(context: Context, noteId: String? = null) =
             Intent(context, NoteActivity::class.java).run {
-                note?.let {
-                    putExtra(EXTRA_NOTE, note)
+                noteId?.let {
+                    putExtra(EXTRA_NOTE, noteId)
                 }
                 context.startActivity(this)
             }
     }
 
     private var note: Note? = null
-    lateinit var viewModel: NoteViewModel
+    override val viewModel: NoteViewModel by lazy {
+        ViewModelProviders.of(this).get(NoteViewModel::class.java)
+    }
+    override val layoutRes = R.layout.activity_note
 
     val textChangedListener = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
@@ -49,11 +52,20 @@ class NoteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_note)
         setSupportActionBar(toolbar)
-        note = intent.getParcelableExtra(EXTRA_NOTE)
-        viewModel = ViewModelProviders.of(this).get(NoteViewModel::class.java)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val noteId = intent.getStringExtra(EXTRA_NOTE)
+        noteId?.let { id ->
+            viewModel.loadNote(id)
+        } ?: let {
+            supportActionBar?.title = "Новая заметка"
+        }
+        initView()
+    }
+
+    override fun renderData(data: Note?) {
+        this.note = data
         supportActionBar?.title = note?.let { note ->
             SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(note.lastChanged)
         } ?: let {

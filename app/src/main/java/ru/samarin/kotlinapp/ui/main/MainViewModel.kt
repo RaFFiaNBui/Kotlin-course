@@ -1,22 +1,34 @@
 package ru.samarin.kotlinapp.ui.main
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.Observer
 import ru.samarin.kotlinapp.data.NotesRepository
+import ru.samarin.kotlinapp.data.entity.Note
+import ru.samarin.kotlinapp.data.model.NoteResult
+import ru.samarin.kotlinapp.ui.base.BaseViewModel
 
-class MainViewModel : ViewModel() {
+class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
 
-    private val viewStateLiveData: MutableLiveData<MainViewState> = MutableLiveData()
-
-    init {
-        NotesRepository.getNotes().observeForever { notes ->
-            notes?.let { notes ->
-                viewStateLiveData.value =
-                    viewStateLiveData.value?.copy(notes = notes) ?: MainViewState(notes)
+    private val noteObserver = Observer<NoteResult> { result ->
+        result ?: return@Observer
+        when (result) {
+            is NoteResult.Success<*> -> {
+                viewStateLiveData.value = MainViewState(notes = result.data as? List<Note>)
+            }
+            is NoteResult.Error -> {
+                viewStateLiveData.value = MainViewState(error = result.error)
             }
         }
     }
 
-    fun viewState(): LiveData<MainViewState> = viewStateLiveData
+    private val repositoryNotes = NotesRepository.getNotes()
+
+    init {
+        viewStateLiveData.value = MainViewState()
+        repositoryNotes.observeForever(noteObserver)
+    }
+
+    override fun onCleared() {
+        repositoryNotes.removeObserver(noteObserver)
+        super.onCleared()
+    }
 }
