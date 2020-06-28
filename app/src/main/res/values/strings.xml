@@ -5,4 +5,8 @@
     <string name="text">Текст заметки</string>
     <string name="heading">Заголовок</string>
     <string name="body_text">Текст заметки</string>
+    <string name="exit">Выход</string>
+    <string name="dialog_message">Вы уверены</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 </resources>
