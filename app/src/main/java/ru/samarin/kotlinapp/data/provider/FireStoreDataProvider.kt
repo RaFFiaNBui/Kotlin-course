@@ -9,15 +9,12 @@ import ru.samarin.kotlinapp.data.entity.User
 import ru.samarin.kotlinapp.data.errors.NoAuthException
 import ru.samarin.kotlinapp.data.model.NoteResult
 
-class FireStoreDataProvider : RemoteDataProvider {
+class FirestoreDataProvider(val store: FirebaseFirestore, val auth: FirebaseAuth) : DataProvider {
 
     companion object {
         private const val NOTES_COLLECTION = "notes"
         private const val USER_COLLECTION = "users"
     }
-
-    private val store by lazy { FirebaseFirestore.getInstance() }
-    private val auth by lazy { FirebaseAuth.getInstance() }
 
     private val currentUser
         get() = auth.currentUser
@@ -46,7 +43,8 @@ class FireStoreDataProvider : RemoteDataProvider {
         }
     }
 
-    override fun getNoteById(id: String): LiveData<NoteResult> = MutableLiveData<NoteResult>().apply {
+    override fun getNoteById(id: String): LiveData<NoteResult> =
+        MutableLiveData<NoteResult>().apply {
             userNotesCollection.document(id).get()
                 .addOnSuccessListener { snapshot ->
                     value = NoteResult.Success(snapshot.toObject(Note::class.java))
@@ -63,4 +61,14 @@ class FireStoreDataProvider : RemoteDataProvider {
                 value = NoteResult.Error(it)
             }
     }
+
+    override fun deleteNote(noteId: String): LiveData<NoteResult> =
+        MutableLiveData<NoteResult>().apply {
+            userNotesCollection.document(noteId).delete()
+                .addOnSuccessListener { snapshot ->
+                    value = NoteResult.Success(null)
+                }.addOnFailureListener {
+                    value = NoteResult.Error(it)
+                }
+        }
 }

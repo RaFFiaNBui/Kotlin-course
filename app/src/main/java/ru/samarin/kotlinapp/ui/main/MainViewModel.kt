@@ -6,7 +6,8 @@ import ru.samarin.kotlinapp.data.entity.Note
 import ru.samarin.kotlinapp.data.model.NoteResult
 import ru.samarin.kotlinapp.ui.base.BaseViewModel
 
-class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
+class MainViewModel(notesRepository: NotesRepository) :
+    BaseViewModel<List<Note>?, MainViewState>() {
 
     private val noteObserver = Observer<NoteResult> { result ->
         result ?: return@Observer
@@ -20,7 +21,7 @@ class MainViewModel : BaseViewModel<List<Note>?, MainViewState>() {
         }
     }
 
-    private val repositoryNotes = NotesRepository.getNotes()
+    private val repositoryNotes = notesRepository.getNotes()
 
     init {
         viewStateLiveData.value = MainViewState()

@@ -17,7 +17,7 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
         const val SIGN_IN = 555
     }
 
-    abstract val viewModel: BaseViewModel<T, S>
+    abstract val model: BaseViewModel<T, S>
     abstract val layoutRes: Int?
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +26,7 @@ abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
             setContentView(it)
         }
         setSupportActionBar(toolbar)
-        viewModel.getViewState().observe(this, Observer { state ->
+        model.getViewState().observe(this, Observer { state ->
             state ?: return@Observer
             state.error?.let { error ->
                 renderError(error)

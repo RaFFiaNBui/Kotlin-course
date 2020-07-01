@@ -1,6 +1,5 @@
 package ru.samarin.kotlinapp.ui.main
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,10 +9,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.samarin.kotlinapp.R
 import ru.samarin.kotlinapp.data.entity.Note
 import ru.samarin.kotlinapp.ui.base.BaseActivity
-import ru.samarin.kotlinapp.ui.base.BaseViewModel
 import ru.samarin.kotlinapp.ui.note.NoteActivity
 import ru.samarin.kotlinapp.ui.splash.SplashActivity
 
@@ -26,9 +25,7 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
         }
     }
 
-    override val viewModel: BaseViewModel<List<Note>?, MainViewState> by lazy {
-        ViewModelProviders.of(this).get(MainViewModel::class.java)
-    }
+    override val model: MainViewModel by viewModel()
 
     override val layoutRes = R.layout.activity_main
 
