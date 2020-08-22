@@ -1,5 +1,6 @@
 package ru.samarin.kotlinapp.ui.note
 
+import android.support.annotation.VisibleForTesting
 import ru.samarin.kotlinapp.data.NotesRepository
 import ru.samarin.kotlinapp.data.entity.Note
 import ru.samarin.kotlinapp.data.model.NoteResult
@@ -30,7 +31,8 @@ class NoteViewModel(val notesRepository: NotesRepository) :
         }
     }
 
-    override fun onCleared() {
+    @VisibleForTesting
+    public override fun onCleared() {
         pendingNote?.let {
             notesRepository.saveNote(it)
         }

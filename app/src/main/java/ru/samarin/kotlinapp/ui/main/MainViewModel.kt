@@ -1,6 +1,7 @@
 package ru.samarin.kotlinapp.ui.main
 
 import android.arch.lifecycle.Observer
+import android.support.annotation.VisibleForTesting
 import ru.samarin.kotlinapp.data.NotesRepository
 import ru.samarin.kotlinapp.data.entity.Note
 import ru.samarin.kotlinapp.data.model.NoteResult
@@ -28,7 +29,8 @@ class MainViewModel(notesRepository: NotesRepository) :
         repositoryNotes.observeForever(noteObserver)
     }
 
-    override fun onCleared() {
+    @VisibleForTesting
+    public override fun onCleared() {
         repositoryNotes.removeObserver(noteObserver)
         super.onCleared()
     }
