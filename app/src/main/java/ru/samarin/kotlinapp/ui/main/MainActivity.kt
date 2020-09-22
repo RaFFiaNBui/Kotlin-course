@@ -16,7 +16,7 @@ import ru.samarin.kotlinapp.ui.base.BaseActivity
 import ru.samarin.kotlinapp.ui.note.NoteActivity
 import ru.samarin.kotlinapp.ui.splash.SplashActivity
 
-class MainActivity : BaseActivity<List<Note>?, MainViewState>() {
+class MainActivity : BaseActivity<List<Note>?>() {
 
     companion object {
         fun start(context: Context) {
