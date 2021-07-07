@@ -10,4 +10,6 @@
     <color name="blue">#52ACD5</color>
     <color name="red">#E43728</color>
     <color name="violet">#CF84DC</color>
+
+    <color name="text_secondary">#66000000</color>
 </resources>

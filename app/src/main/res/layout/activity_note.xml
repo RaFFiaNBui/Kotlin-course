@@ -17,6 +17,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:title="SRS Notes App" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ru.samarin.kotlinapp.ui.customeviews.ColorPickerView
+                android:id="@+id/colorPicker"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize" />
+
+        </HorizontalScrollView>
+
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout

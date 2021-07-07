@@ -4,10 +4,10 @@ import ru.samarin.kotlinapp.data.NotesRepository
 import ru.samarin.kotlinapp.data.errors.NoAuthException
 import ru.samarin.kotlinapp.ui.base.BaseViewModel
 
-class SplashViewModel : BaseViewModel<Boolean?, SplashViewState>() {
+class SplashViewModel(val notesRepository: NotesRepository) : BaseViewModel<Boolean?, SplashViewState>() {
 
     fun requestUser() {
-        NotesRepository.getCurrentUser().observeForever {
+        notesRepository.getCurrentUser().observeForever {
             viewStateLiveData.value = it?.let {
                 SplashViewState(authenticated = true)
             } ?: let {

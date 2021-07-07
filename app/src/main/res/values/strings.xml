@@ -6,7 +6,9 @@
     <string name="heading">Заголовок</string>
     <string name="body_text">Текст заметки</string>
     <string name="exit">Выход</string>
-    <string name="dialog_message">Вы уверены</string>
+    <string name="dialog_message">Вы уверены?</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="note_color_select">Выбирите цвет</string>
+    <string name="note_delete">Удалить</string>
 </resources>

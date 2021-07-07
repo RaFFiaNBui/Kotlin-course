@@ -1,21 +1,24 @@
 package ru.samarin.kotlinapp.ui.note
 
-import android.arch.lifecycle.ViewModelProviders
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.activity_note.*
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.samarin.kotlinapp.R
+import ru.samarin.kotlinapp.common.getColorInt
 import ru.samarin.kotlinapp.data.entity.Note
 import ru.samarin.kotlinapp.ui.base.BaseActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
-class NoteActivity : BaseActivity<Note?, NoteViewState>() {
+class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
 
     companion object {
         private val EXTRA_NOTE = NoteActivity::class.java.name + "EXTRA.NOTE"
@@ -31,9 +34,8 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
     }
 
     private var note: Note? = null
-    override val viewModel: NoteViewModel by lazy {
-        ViewModelProviders.of(this).get(NoteViewModel::class.java)
-    }
+    private var color: Note.Color = Note.Color.WHITE
+    override val model: NoteViewModel by viewModel()
     override val layoutRes = R.layout.activity_note
 
     val textChangedListener = object : TextWatcher {
@@ -55,20 +57,14 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
 
         val noteId = intent.getStringExtra(EXTRA_NOTE)
         noteId?.let { id ->
-            viewModel.loadNote(id)
-        } ?: let {
-            supportActionBar?.title = "Новая заметка"
+            model.loadNote(id)
         }
         initView()
     }
 
-    override fun renderData(data: Note?) {
-        this.note = data
-        supportActionBar?.title = note?.let { note ->
-            SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(note.lastChanged)
-        } ?: let {
-            "Новая заметка"
-        }
+    override fun renderData(data: NoteViewState.Data) {
+        if (data.isDeleted) finish()
+        this.note = data.note
         initView()
     }
 
@@ -79,19 +75,21 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
         note?.let { note ->
             note_title.setText(note.title)
             note_body.setText(note.text)
-
-            val color = when (note.color) {
-                Note.Color.WHITE -> R.color.white
-                Note.Color.YELLOW -> R.color.yellow
-                Note.Color.BLUE -> R.color.blue
-                Note.Color.RED -> R.color.red
-                Note.Color.GREEN -> R.color.green
-                Note.Color.VIOLET -> R.color.violet
-            }
-            toolbar.setBackgroundColor(color)
+            note_title.setSelection(note_title.text?.length ?: 0)
+            note_body.setSelection(note_body.text?.length ?: 0)
+            SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(note.lastChanged)
+            toolbar.setBackgroundColor(note.color.getColorInt(this))
+        } ?: let {
+            supportActionBar?.title = "Новая заметка"
         }
         note_title.addTextChangedListener(textChangedListener)
         note_body.addTextChangedListener(textChangedListener)
+
+        colorPicker.onColorClickListener = {
+            color = it
+            toolbar.setBackgroundColor(color.getColorInt(this))
+            saveNote()
+        }
     }
 
     private fun saveNote() {
@@ -99,7 +97,8 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
         note = note?.copy(
             title = note_title.text.toString(),
             text = note_body.text.toString(),
-            lastChanged = Date()
+            lastChanged = Date(),
+            color = color
         ) ?: Note(
             UUID.randomUUID().toString(),
             note_title.text.toString(),
@@ -107,15 +106,39 @@ class NoteActivity : BaseActivity<Note?, NoteViewState>() {
         )
 
         note?.let {
-            viewModel.save(it)
+            model.save(it)
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?) =
+        menuInflater.inflate(R.menu.note, menu).let { true }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        android.R.id.home -> {
-            onBackPressed()
-            true
-        }
+        android.R.id.home -> onBackPressed().let { true }
+        R.id.palette -> togglePalette().let { true }
+        R.id.delete -> deleteNote().let { true }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        if (colorPicker.isOpen) {
+            colorPicker.close()
+            return
+        }
+        super.onBackPressed()
+    }
+
+    private fun togglePalette() {
+        if (colorPicker.isOpen) {
+            colorPicker.close()
+        } else colorPicker.open()
+    }
+
+    private fun deleteNote() {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.dialog_message))
+            .setPositiveButton(getString(R.string.yes)) { dialog, which -> model.deleteNote() }
+            .setNegativeButton(getString(R.string.no)) { dialog, which -> dialog.dismiss() }
+            .show()
     }
 }
